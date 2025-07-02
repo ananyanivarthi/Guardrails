@@ -1,0 +1,27 @@
+models:
+  - type: main
+    engine: azure_openai
+    model: gpt-4o
+    parameters:
+      azure_endpoint: ${AZURE_OPENAI_ENDPOINT}
+      api_key: ${AZURE_OPENAI_API_KEY}
+      api_version: "2025-01-01-preview"
+      max_tokens: 200
+      temperature: 0.7
+      top_p: 0.9
+
+rails:
+  input:
+    flows:
+      - self check input
+  output:
+    flows:
+      - self check output
+  general:
+    flows:
+      - detect injection
+      - detect hallucination
+
+general:
+  pii_masking: true
+  log_level: DEBUG
