@@ -1,29 +1,34 @@
-# Use official Python slim image for smaller footprint
+# Use slim image
 FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements file
-COPY requirements.txt .
-
-# Install system dependencies and Python packages
+# System-level dependencies (for torch + spaCy)
 RUN apt-get update && apt-get install -y \
     gcc \
-    && pip install --no-cache-dir -r requirements.txt \
-    && python -m spacy download en_core_web_sm \
-    && apt-get remove -y gcc \
-    && apt-get autoremove -y \
+    git \
+    curl \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy application files
-COPY main.py .
-COPY config.yml .
-COPY prompts.yaml .
-COPY rails.co .
+# Copy requirements and install
+COPY requirements.txt .
 
-# Expose port
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Download the large spaCy model
+RUN python -m spacy download en_core_web_lg
+
+# Optional: If you're downloading IndicNER model in runtime, no need to do anything.
+# If not, and you're using HuggingFace model manually, you can pre-cache it (optional).
+# e.g., RUN python -c "from transformers import AutoModel; AutoModel.from_pretrained('ai4bharat/IndicNER')"
+
+# Copy project files
+COPY . /app
+
+# Expose app port
 EXPOSE 8000
 
-# Command to run the application
+# Run FastAPI app
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
