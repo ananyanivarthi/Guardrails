@@ -84,6 +84,48 @@ def mask_structured_pii(text: str) -> str:
     ssn_pattern = r'\b\d{3}-\d{2}-\d{4}\b'
     text = re.sub(ssn_pattern, '[SSN_MASKED]', text)
 
+    # Aadhaar masking
+    aadhaar_pattern = r'\b\d{4}\s?\d{4}\s?\d{4}\b'
+    text = re.sub(aadhaar_pattern, '[AADHAAR_MASKED]', text)
+
+    # PAN masking
+    pan_pattern = r'\b[A-Z]{5}[0-9]{4}[A-Z]\b'
+    text = re.sub(pan_pattern, '[PAN_MASKED]', text)
+
+    # IFSC Code masking
+    ifsc_pattern = r'\b[A-Z]{4}0[A-Z0-9]{6}\b'
+    text = re.sub(ifsc_pattern, '[IFSC_MASKED]', text)
+
+    # Bank Account Number masking
+    account_pattern = r'\b\d{9,18}\b'
+    text = re.sub(account_pattern, '[BANK_ACCOUNT_MASKED]', text)
+
+    # Credit/Debit Card Number masking
+    card_pattern = r'\b(?:\d[ -]*?){13,16}\b'
+    text = re.sub(card_pattern, '[CARD_MASKED]', text)
+
+    # Date of Birth masking (basic patterns)
+    dob_patterns = [
+        r'\b\d{2}[/-]\d{2}[/-]\d{4}\b',        # 21/07/1995 or 21-07-1995
+        r'\b\d{4}-\d{2}-\d{2}\b',              # 1995-07-21
+        r'\b\d{1,2}(st|nd|rd|th)?\s+[A-Za-z]+\s+\d{4}\b',  # 21st July 1995
+    ]
+    for pattern in dob_patterns:
+        text = re.sub(pattern, '[DOB_MASKED]', text)
+
+    # UK NINO masking
+    nino_pattern = r'\b[A-CEGHJ-PR-TW-Z]{2}\d{6}[A-D]\b'
+    text = re.sub(nino_pattern, '[NINO_MASKED]', text)
+
+    # Address fallback (optional regex-based heuristic)
+    address_patterns = [
+        r'\b(?:Flat|House|Apt|Apartment|Villa|Building|Block|Sector|Street|Road|Colony|Lane|Nagar|Area|Vihar|Bagh|Enclave|Galli|Gali|Society|Floor|Tower)[\w\s,./-]{3,50}',
+        r'\b(?:I\s+live\s+at|My\s+address\s+is)\s+[A-Za-z0-9\s,./-]{5,50}',  # context-based
+        r'\b\d{1,4}[A-Za-z]?[/\-]?\d{1,4}[A-Za-z]?\s+[A-Z][a-z]{2,30}\b', 
+    ]
+    for pattern in address_patterns:
+        text = re.sub(pattern, '[ADDRESS_MASKED]', text, flags=re.IGNORECASE)
+
     return text
 
 def mask_pii(text: str) -> str:
