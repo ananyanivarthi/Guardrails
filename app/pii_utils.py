@@ -54,8 +54,6 @@ def get_indic_entities(text: str):
     return merged
 
 
-
-
 def normalize_label(label: str) -> str:
     # Map IndicNER tags like "PER", "LOC", "ORG" to spaCy-style tags
     label_map = {

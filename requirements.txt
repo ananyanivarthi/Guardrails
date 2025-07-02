@@ -6,3 +6,4 @@ nemoguardrails
 langchain-openai
 spacy
 faiss-cpu==1.7.4
+phonenumbers
